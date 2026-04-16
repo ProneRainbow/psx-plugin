@@ -1,6 +1,6 @@
 # PSX MIPS and PsyQ Support for CLion
 
-### 🎮 Welcome, Mark!
+### 🎮 Welcome!
 This plugin adds comprehensive support for **PlayStation 1 (PSX)** development to CLion, focusing on **MIPS R3000A Assembly** and the **Sony PsyQ SDK**.
 
 ## ✨ Features
@@ -60,7 +60,7 @@ If you want to generate a `.zip` file to install into your primary CLion:
 
 ---
 
-### 📝 Notes for Mark:
+### 📝 Notes:
 *   **PsyQ Headers:** For the C/C++ completion to work best, make sure your project includes the PsyQ header files (`.h`) so CLion can resolve the types.
 *   **Feedback:** If you find any missing registers or functions while you're coding, let me know!
 

@@ -111,7 +111,7 @@ class MipsLexerAdapter : LexerBase() {
                 while (currentOffset < endOffset && (buffer[currentOffset].isLetterOrDigit())) {
                     currentOffset++
                 }
-                val regName = buffer.subSequence(regStart, currentOffset).toString()
+                // val regName = buffer.subSequence(regStart, currentOffset).toString()
                 // Support both numeric ($0-$31) and named ($t0) registers
                 tokenType = MipsTokenTypes.REGISTER
             }
@@ -128,10 +128,22 @@ class MipsLexerAdapter : LexerBase() {
             }
             ch.isDigit() || (ch == '-' && currentOffset + 1 < endOffset && buffer[currentOffset + 1].isDigit()) -> {
                 if (ch == '-') currentOffset++
-                if (currentOffset + 1 < endOffset && buffer[currentOffset] == '0' && (buffer[currentOffset + 1] == 'x' || buffer[currentOffset + 1] == 'X')) {
-                    currentOffset += 2 // Hex
-                    while (currentOffset < endOffset && (buffer[currentOffset].isDigit() || buffer[currentOffset].lowercaseChar() in 'a'..'f')) {
-                        currentOffset++
+                if (currentOffset + 1 < endOffset && buffer[currentOffset] == '0') {
+                    val next = buffer[currentOffset + 1].lowercaseChar()
+                    if (next == 'x') {
+                        currentOffset += 2 // Hex
+                        while (currentOffset < endOffset && (buffer[currentOffset].isDigit() || buffer[currentOffset].lowercaseChar() in 'a'..'f')) {
+                            currentOffset++
+                        }
+                    } else if (next == 'b') {
+                        currentOffset += 2 // Binary
+                        while (currentOffset < endOffset && (buffer[currentOffset] == '0' || buffer[currentOffset] == '1')) {
+                            currentOffset++
+                        }
+                    } else {
+                        while (currentOffset < endOffset && buffer[currentOffset].isDigit()) {
+                            currentOffset++
+                        }
                     }
                 } else {
                     while (currentOffset < endOffset && buffer[currentOffset].isDigit()) {

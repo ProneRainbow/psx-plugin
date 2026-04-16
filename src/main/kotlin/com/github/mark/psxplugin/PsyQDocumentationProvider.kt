@@ -2,16 +2,85 @@ package com.github.mark.psxplugin
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.psi.PsiElement
+import com.intellij.openapi.diagnostic.Logger
 
 class PsyQDocumentationProvider : AbstractDocumentationProvider() {
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
-        val text = target.text
+        val text = target.text.trim()
         
-        return functionDocs[text] ?: registerDocs[text] ?: constantDocs[text] ?: structDocs[text] ?: macroDocs[text]
+        // 1. Handle Numbers
+        tryConvertNumber(text)?.let { return it }
+
+        // 2. Try exact match first
+        val doc = functionDocs[text] ?: registerDocs[text] ?: constantDocs[text] ?: structDocs[text] ?: macroDocs[text]
+        if (doc != null) return doc
+
+        // 3. Handle MIPS registers in C files (e.g. "$t1" or just "t1" in some contexts)
+        val regName = text.removePrefix("$").lowercase()
+        return mipsRegisterDocs[regName]
+    }
+
+    private fun tryConvertNumber(text: String): String? {
+        val cleanText = text.lowercase().removeSuffix("h").removeSuffix("b")
+        val longValue: Long = when {
+            cleanText.startsWith("0x") -> cleanText.removePrefix("0x").toLongOrNull(16)
+            cleanText.startsWith("0b") -> cleanText.removePrefix("0b").toLongOrNull(2)
+            cleanText.all { it.isDigit() || it == '-' } -> cleanText.toLongOrNull()
+            else -> null
+        } ?: return null
+
+        val dec = longValue.toString()
+        val hex = "0x" + longValue.toString(16).uppercase()
+        val bin = "0b" + longValue.toString(2)
+        
+        return """
+            <b>Numeric Value</b><br>
+            <hr>
+            <table>
+                <tr><td><b>Decimal:</b></td><td>$dec</td></tr>
+                <tr><td><b>Hex:</b></td><td>$hex</td></tr>
+                <tr><td><b>Binary:</b></td><td>$bin</td></tr>
+            </table>
+        """.trimIndent()
     }
 
     companion object {
+        // ... existing maps ...
+        private val mipsRegisterDocs = mapOf(
+            "zero" to "<b>\$zero</b>: Always contains the value 0.",
+            "at" to "<b>\$at</b>: Assembler Temporary. Reserved for use by the assembler.",
+            "v0" to "<b>\$v0</b>: Expression evaluation and results of a function.",
+            "v1" to "<b>\$v1</b>: Expression evaluation and results of a function.",
+            "a0" to "<b>\$a0</b>: Argument 0. Used to pass the first parameter to a function.",
+            "a1" to "<b>\$a1</b>: Argument 1. Used to pass the second parameter to a function.",
+            "a2" to "<b>\$a2</b>: Argument 2. Used to pass the third parameter to a function.",
+            "a3" to "<b>\$a3</b>: Argument 3. Used to pass the fourth parameter to a function.",
+            "t0" to "<b>\$t0</b>: Temporary. Caller-saved. Subroutines can use without saving.",
+            "t1" to "<b>\$t1</b>: Temporary. Caller-saved.",
+            "t2" to "<b>\$t2</b>: Temporary. Caller-saved.",
+            "t3" to "<b>\$t3</b>: Temporary. Caller-saved.",
+            "t4" to "<b>\$t4</b>: Temporary. Caller-saved.",
+            "t5" to "<b>\$t5</b>: Temporary. Caller-saved.",
+            "t6" to "<b>\$t6</b>: Temporary. Caller-saved.",
+            "t7" to "<b>\$t7</b>: Temporary. Caller-saved.",
+            "s0" to "<b>\$s0</b>: Saved Temporary. Callee-saved. Must be preserved by subroutines.",
+            "s1" to "<b>\$s1</b>: Saved Temporary. Callee-saved.",
+            "s2" to "<b>\$s2</b>: Saved Temporary. Callee-saved.",
+            "s3" to "<b>\$s3</b>: Saved Temporary. Callee-saved.",
+            "s4" to "<b>\$s4</b>: Saved Temporary. Callee-saved.",
+            "s5" to "<b>\$s5</b>: Saved Temporary. Callee-saved.",
+            "s6" to "<b>\$s6</b>: Saved Temporary. Callee-saved.",
+            "s7" to "<b>\$s7</b>: Saved Temporary. Callee-saved.",
+            "t8" to "<b>\$t8</b>: Temporary. Caller-saved.",
+            "t9" to "<b>\$t9</b>: Temporary. Caller-saved.",
+            "k0" to "<b>\$k0</b>: Reserved for Kernel (Interrupt/Exception handling).",
+            "k1" to "<b>\$k1</b>: Reserved for Kernel (Interrupt/Exception handling).",
+            "gp" to "<b>\$gp</b>: Global Pointer. Points to the middle of the 64K block of static data.",
+            "sp" to "<b>\$sp</b>: Stack Pointer. Points to the last location on the stack.",
+            "fp" to "<b>\$fp</b>: Frame Pointer (or \$s8). Used to track the stack frame.",
+            "ra" to "<b>\$ra</b>: Return Address. Stores the address to return to after a function call."
+        )
         private val macroDocs = mapOf(
             "setRECT" to "<b>setRECT(r, x, y, w, h)</b>: Helper macro to initialize a RECT structure.",
             "setVector" to "<b>setVector(v, x, y, z)</b>: Helper macro to initialize a VECTOR structure.",

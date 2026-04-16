@@ -5,15 +5,21 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.clion</depends>
+    <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="MIPS Assembly" implementationClass="com.github.mark.psxplugin.MipsFileType" fieldName="INSTANCE" language="MIPS" extensions="asm;s"/>
-        <lang.syntaxHighlighterFactory language="MIPS" implementationClass="com.github.mark.psxplugin.MipsSyntaxHighlighterFactory"/>
-        <lang.commenter language="MIPS" implementationClass="com.github.mark.psxplugin.MipsCommenter"/>
+        <fileType name="MIPS Assembly" implementationClass="com.github.mark.psxplugin.MipsFileType" fieldName="INSTANCE" language="PSX_MIPS" extensions="asm;s"/>
+        <lang.syntaxHighlighterFactory language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsSyntaxHighlighterFactory"/>
+        <lang.commenter language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsCommenter"/>
+        <lang.parserDefinition language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsParserDefinition"/>
         <completion.contributor language="any" implementationClass="com.github.mark.psxplugin.PsyQCompletionContributor"/>
-        <lang.documentationProvider language="MIPS" implementationClass="com.github.mark.psxplugin.MipsDocumentationProvider"/>
+        
+        <!-- Registration for Mips -->
+        <lang.documentationProvider language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsDocumentationProvider"/>
+        
+        <!-- Cross-registration for C/C++ -->
         <lang.documentationProvider language="ObjectiveC" implementationClass="com.github.mark.psxplugin.PsyQDocumentationProvider"/>
-
+        
         <liveTemplateContext contextId="PSYQ" implementation="com.github.mark.psxplugin.PsyQLiveTemplateContext"/>
         <liveTemplateContext contextId="MIPS" implementation="com.github.mark.psxplugin.MipsLiveTemplateContext"/>
         <defaultLiveTemplates file="liveTemplates/PsyQ.xml"/>

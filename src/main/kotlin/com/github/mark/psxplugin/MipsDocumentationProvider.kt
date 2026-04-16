@@ -2,27 +2,69 @@ package com.github.mark.psxplugin
 
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.openapi.diagnostic.Logger
 
 class MipsDocumentationProvider : AbstractDocumentationProvider() {
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
-        if (target is LeafPsiElement && target.elementType == MipsTokenTypes.REGISTER) {
-            val rawRegName = target.text.removePrefix("$").lowercase()
-            // Map numeric registers to named ones
+        
+        val text = target.text.trim().lowercase()
+        
+        // Handle Numbers
+        tryConvertNumber(text)?.let { return it }
+
+        // Handle Registers
+        if (text.startsWith("$")) {
+            val rawRegName = text.removePrefix("$")
             val regName = numericToNamed[rawRegName] ?: rawRegName
             return registerDocs[regName] ?: cop0Docs[regName] ?: gteDocs[regName]
         }
-        return null
+        
+        // Handle Instructions
+        return instructionDocs[text]
+    }
+
+    override fun getCustomDocumentationElement(editor: com.intellij.openapi.editor.Editor, file: PsiFile, contextElement: PsiElement?): PsiElement? {
+        return contextElement
+    }
+
+    private fun tryConvertNumber(text: String): String? {
+        val cleanText = text.lowercase().removeSuffix("h").removeSuffix("b")
+        val longValue: Long = when {
+            cleanText.startsWith("0x") -> cleanText.removePrefix("0x").toLongOrNull(16)
+            cleanText.startsWith("0b") -> cleanText.removePrefix("0b").toLongOrNull(2)
+            cleanText.all { it.isDigit() || it == '-' } -> cleanText.toLongOrNull()
+            else -> null
+        } ?: return null
+
+        val dec = longValue.toString()
+        val hex = "0x" + longValue.toString(16).uppercase()
+        val bin = "0b" + longValue.toString(2)
+        
+        return """
+            <b>Numeric Value</b><br>
+            <hr>
+            <table>
+                <tr><td><b>Decimal:</b></td><td>$dec</td></tr>
+                <tr><td><b>Hex:</b></td><td>$hex</td></tr>
+                <tr><td><b>Binary:</b></td><td>$bin</td></tr>
+            </table>
+        """.trimIndent()
     }
 
     override fun getQuickNavigateInfo(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
-        if (target is LeafPsiElement && target.elementType == MipsTokenTypes.REGISTER) {
-            val rawRegName = target.text.removePrefix("$").lowercase()
+        val text = target.text.trim().lowercase()
+        if (text.startsWith("$")) {
+            val rawRegName = text.removePrefix("$")
             val namedReg = numericToNamed[rawRegName]
             val regLabel = if (namedReg != null) "\$$rawRegName (\$$namedReg)" else "\$$rawRegName"
             return "MIPS Register: $regLabel"
+        }
+        if (instructionDocs.containsKey(text)) {
+            return "MIPS Instruction: $text"
         }
         return null
     }
@@ -33,6 +75,76 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
             "8" to "t0", "9" to "t1", "10" to "t2", "11" to "t3", "12" to "t4", "13" to "t5", "14" to "t6", "15" to "t7",
             "16" to "s0", "17" to "s1", "18" to "s2", "19" to "s3", "20" to "s4", "21" to "s5", "22" to "s6", "23" to "s7",
             "24" to "t8", "25" to "t9", "26" to "k0", "27" to "k1", "28" to "gp", "29" to "sp", "30" to "fp", "31" to "ra"
+        )
+        private val instructionDocs = mapOf(
+            "add" to "<b>add rd, rs, rt</b>: Add (with overflow). rd = rs + rt. Exceptions: Overflow.",
+            "addu" to "<b>addu rd, rs, rt</b>: Add Unsigned (no overflow). rd = rs + rt.",
+            "addi" to "<b>addi rt, rs, immediate</b>: Add Immediate (with overflow). rt = rs + imm. Exceptions: Overflow.",
+            "addiu" to "<b>addiu rt, rs, immediate</b>: Add Immediate Unsigned (no overflow). rt = rs + imm.",
+            "sub" to "<b>sub rd, rs, rt</b>: Subtract (with overflow). rd = rs - rt. Exceptions: Overflow.",
+            "subu" to "<b>subu rd, rs, rt</b>: Subtract Unsigned (no overflow). rd = rs - rt.",
+            "mult" to "<b>mult rs, rt</b>: Multiply. (Hi, Lo) = rs * rt.",
+            "multu" to "<b>multu rs, rt</b>: Multiply Unsigned. (Hi, Lo) = rs * rt.",
+            "div" to "<b>div rs, rt</b>: Divide. Lo = rs / rt; Hi = rs % rt.",
+            "divu" to "<b>divu rs, rt</b>: Divide Unsigned. Lo = rs / rt; Hi = rs % rt.",
+            "and" to "<b>and rd, rs, rt</b>: Bitwise And. rd = rs & rt.",
+            "or" to "<b>or rd, rs, rt</b>: Bitwise Or. rd = rs | rt.",
+            "xor" to "<b>xor rd, rs, rt</b>: Bitwise Xor. rd = rs ^ rt.",
+            "nor" to "<b>nor rd, rs, rt</b>: Bitwise Nor. rd = ~(rs | rt).",
+            "andi" to "<b>andi rt, rs, immediate</b>: Bitwise And Immediate. rt = rs & zero_ext(imm).",
+            "ori" to "<b>ori rt, rs, immediate</b>: Bitwise Or Immediate. rt = rs | zero_ext(imm).",
+            "xori" to "<b>xori rt, rs, immediate</b>: Bitwise Xor Immediate. rt = rs ^ zero_ext(imm).",
+            "lui" to "<b>lui rt, immediate</b>: Load Upper Immediate. rt = imm << 16.",
+            "sll" to "<b>sll rd, rt, sa</b>: Shift Left Logical. rd = rt << sa.",
+            "srl" to "<b>srl rd, rt, sa</b>: Shift Right Logical. rd = rt >> sa.",
+            "sra" to "<b>sra rd, rt, sa</b>: Shift Right Arithmetic. rd = rt >> sa (sign-extended).",
+            "sllv" to "<b>sllv rd, rt, rs</b>: Shift Left Logical Variable. rd = rt << rs.",
+            "srlv" to "<b>srlv rd, rt, rs</b>: Shift Right Logical Variable. rd = rt >> rs.",
+            "srav" to "<b>srav rd, rt, rs</b>: Shift Right Arithmetic Variable. rd = rt >> rs.",
+            "slt" to "<b>slt rd, rs, rt</b>: Set on Less Than. rd = (rs < rt) ? 1 : 0.",
+            "sltu" to "<b>sltu rd, rs, rt</b>: Set on Less Than Unsigned. rd = (rs < rt) ? 1 : 0.",
+            "slti" to "<b>slti rt, rs, immediate</b>: Set on Less Than Immediate. rt = (rs < imm) ? 1 : 0.",
+            "sltiu" to "<b>sltiu rt, rs, immediate</b>: Set on Less Than Immediate Unsigned. rt = (rs < imm) ? 1 : 0.",
+            "beq" to "<b>beq rs, rt, label</b>: Branch on Equal. if (rs == rt) goto label.",
+            "bne" to "<b>bne rs, rt, label</b>: Branch on Not Equal. if (rs != rt) goto label.",
+            "bgez" to "<b>bgez rs, label</b>: Branch on Greater Than or Equal to Zero. if (rs >= 0) goto label.",
+            "bgezal" to "<b>bgezal rs, label</b>: Branch on Greater Than or Equal to Zero and Link. if (rs >= 0) { ra = next_pc; goto label; }",
+            "bgtz" to "<b>bgtz rs, label</b>: Branch on Greater Than Zero. if (rs > 0) goto label.",
+            "blez" to "<b>blez rs, label</b>: Branch on Less Than or Equal to Zero. if (rs <= 0) goto label.",
+            "bltz" to "<b>bltz rs, label</b>: Branch on Less Than Zero. if (rs < 0) goto label.",
+            "bltzal" to "<b>bltzal rs, label</b>: Branch on Less Than Zero and Link. if (rs < 0) { ra = next_pc; goto label; }",
+            "j" to "<b>j label</b>: Jump. goto label.",
+            "jal" to "<b>jal label</b>: Jump and Link. ra = next_pc; goto label.",
+            "jr" to "<b>jr rs</b>: Jump Register. goto rs.",
+            "jalr" to "<b>jalr rd, rs</b>: Jump and Link Register. rd = next_pc; goto rs.",
+            "lw" to "<b>lw rt, offset(base)</b>: Load Word. rt = memory[base + offset].",
+            "lh" to "<b>lh rt, offset(base)</b>: Load Halfword. rt = memory[base + offset] (sign-extended).",
+            "lhu" to "<b>lhu rt, offset(base)</b>: Load Halfword Unsigned. rt = memory[base + offset] (zero-extended).",
+            "lb" to "<b>lb rt, offset(base)</b>: Load Byte. rt = memory[base + offset] (sign-extended).",
+            "lbu" to "<b>lbu rt, offset(base)</b>: Load Byte Unsigned. rt = memory[base + offset] (zero-extended).",
+            "sw" to "<b>sw rt, offset(base)</b>: Store Word. memory[base + offset] = rt.",
+            "sh" to "<b>sh rt, offset(base)</b>: Store Halfword. memory[base + offset] = rt.",
+            "sb" to "<b>sb rt, offset(base)</b>: Store Byte. memory[base + offset] = rt.",
+            "mfhi" to "<b>mfhi rd</b>: Move From Hi. rd = Hi.",
+            "mflo" to "<b>mflo rd</b>: Move From Lo. rd = Lo.",
+            "mthi" to "<b>mthi rs</b>: Move To Hi. Hi = rs.",
+            "mtlo" to "<b>mtlo rs</b>: Move To Lo. Lo = rs.",
+            "syscall" to "<b>syscall</b>: System Call. Causes a System Call exception.",
+            "break" to "<b>break</b>: Breakpoint. Causes a Breakpoint exception.",
+            "nop" to "<b>nop</b>: No Operation. Does nothing.",
+            "mfc0" to "<b>mfc0 rt, rd</b>: Move From Coprocessor 0. rt = COP0[rd].",
+            "mtc0" to "<b>mtc0 rt, rd</b>: Move To Coprocessor 0. COP0[rd] = rt.",
+            "mfc2" to "<b>mfc2 rt, rd</b>: Move From Coprocessor 2 (GTE). rt = GTE_Data[rd].",
+            "mtc2" to "<b>mtc2 rt, rd</b>: Move To Coprocessor 2 (GTE). GTE_Data[rd] = rt.",
+            "cfc2" to "<b>cfc2 rt, rd</b>: Copy From Control Coprocessor 2 (GTE). rt = GTE_Control[rd].",
+            "ctc2" to "<b>ctc2 rt, rd</b>: Copy To Control Coprocessor 2 (GTE). GTE_Control[rd] = rt.",
+            "li" to "<b>li rt, immediate</b>: Load Immediate (Pseudo-instruction). Loads a 32-bit constant into rt.",
+            "la" to "<b>la rt, label</b>: Load Address (Pseudo-instruction). Loads the address of label into rt.",
+            "move" to "<b>move rd, rs</b>: Move (Pseudo-instruction). rd = rs.",
+            "b" to "<b>b label</b>: Branch (Pseudo-instruction). Unconditional branch to label.",
+            "bal" to "<b>bal label</b>: Branch and Link (Pseudo-instruction). Unconditional branch to label and link ra.",
+            "beqz" to "<b>beqz rs, label</b>: Branch if Equal to Zero (Pseudo-instruction). if (rs == 0) goto label.",
+            "bnez" to "<b>bnez rs, label</b>: Branch if Not Equal to Zero (Pseudo-instruction). if (rs != 0) goto label."
         )
         private val registerDocs = mapOf(
             "zero" to "<b>\$zero</b>: Always contains the value 0.",
