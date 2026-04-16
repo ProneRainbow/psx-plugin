@@ -1,0 +1,45 @@
+<templateSet group="PsyQ">
+    <template name="psxinit" value="GsInitGraph($WIDTH$, $HEIGHT$, $GMODE$, $INTER$, $VRAM$);&#10;SetDefDrawEnv(&amp;db[0].draw, 0, 0, $WIDTH$, $HEIGHT$);&#10;SetDefDispEnv(&amp;db[0].disp, 0, 0, $WIDTH$, $HEIGHT$);&#10;SetDefDrawEnv(&amp;db[1].draw, 0, $HEIGHT$, $WIDTH$, $HEIGHT$);&#10;SetDefDispEnv(&amp;db[1].disp, 0, $HEIGHT$, $WIDTH$, $HEIGHT$);&#10;$END$" description="Initialize basic PsyQ graphics" toReformat="true" toShortenFQNames="true">
+        <variable name="WIDTH" expression="" defaultValue="&quot;320&quot;" alwaysStopAt="true" />
+        <variable name="HEIGHT" expression="" defaultValue="&quot;240&quot;" alwaysStopAt="true" />
+        <variable name="GMODE" expression="" defaultValue="&quot;GsNONINTER&quot;" alwaysStopAt="true" />
+        <variable name="INTER" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <variable name="VRAM" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <context>
+            <option name="PSYQ" value="true" />
+        </context>
+    </template>
+
+    <template name="psxloop" value="while (1) {&#10;    hsync = VSync(0);&#10;    GsSwapDisplay();&#10;    $END$&#10;}" description="Basic PsyQ main loop" toReformat="true" toShortenFQNames="true">
+        <context>
+            <option name="PSYQ" value="true" />
+        </context>
+    </template>
+
+    <template name="psxregs" value="#define I_STAT (*(volatile unsigned int*)0x1F801070)&#10;#define I_MASK (*(volatile unsigned int*)0x1F801074)&#10;#define GP0    (*(volatile unsigned int*)0x1F801810)&#10;#define GP1    (*(volatile unsigned int*)0x1F801814)&#10;$END$" description="Define common PSX hardware registers" toReformat="true" toShortenFQNames="true">
+        <context>
+            <option name="PSYQ" value="true" />
+        </context>
+    </template>
+
+    <template name="rect" value="RECT $NAME$ = { $X$, $Y$, $W$, $H$ };$END$" description="Initialize a RECT structure" toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;r&quot;" alwaysStopAt="true" />
+        <variable name="X" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <variable name="Y" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <variable name="W" expression="" defaultValue="&quot;320&quot;" alwaysStopAt="true" />
+        <variable name="H" expression="" defaultValue="&quot;240&quot;" alwaysStopAt="true" />
+        <context>
+            <option name="PSYQ" value="true" />
+        </context>
+    </template>
+
+    <template name="svector" value="SVECTOR $NAME$ = { $VX$, $VY$, $VZ$ };$END$" description="Initialize an SVECTOR structure" toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;v&quot;" alwaysStopAt="true" />
+        <variable name="VX" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <variable name="VY" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <variable name="VZ" expression="" defaultValue="&quot;0&quot;" alwaysStopAt="true" />
+        <context>
+            <option name="PSYQ" value="true" />
+        </context>
+    </template>
+</templateSet>
