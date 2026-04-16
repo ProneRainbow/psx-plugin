@@ -1,0 +1,14 @@
+<templateSet group="MIPS">
+    <template name="func" value=".global $NAME$&#10;.type $NAME$, @function&#10;$NAME$:&#10;    addiu $sp, $sp, -32&#10;    sw $ra, 28($sp)&#10;    sw $fp, 24($sp)&#10;    move $fp, $sp&#10;    &#10;    $END$&#10;    &#10;    move $sp, $fp&#10;    lw $ra, 28($sp)&#10;    lw $fp, 24($sp)&#10;    addiu $sp, $sp, 32&#10;    jr $ra&#10;    nop" description="MIPS function prologue and epilogue" toReformat="true" toShortenFQNames="true">
+        <variable name="NAME" expression="" defaultValue="&quot;my_function&quot;" alwaysStopAt="true" />
+        <context>
+            <option name="MIPS" value="true" />
+        </context>
+    </template>
+
+    <template name="main" value=".text&#10;.global main&#10;main:&#10;    $END$&#10;    jr $ra&#10;    nop" description="Basic MIPS main entry point" toReformat="true" toShortenFQNames="true">
+        <context>
+            <option name="MIPS" value="true" />
+        </context>
+    </template>
+</templateSet>
