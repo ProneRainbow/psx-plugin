@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "2.1.0"
     id("org.jetbrains.intellij.platform") version "2.1.0"
 }
 
@@ -16,6 +16,7 @@ java {
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        freeCompilerArgs.add("-Xskip-metadata-version-check")
     }
 }
 
@@ -42,6 +43,7 @@ intellijPlatform {
             name = "Mark"
         }
     }
+    buildSearchableOptions = false
 }
 
 tasks {

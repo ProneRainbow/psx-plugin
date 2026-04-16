@@ -130,7 +130,7 @@ class MipsLexerAdapter : LexerBase() {
                 if (ch == '-') currentOffset++
                 if (currentOffset + 1 < endOffset && buffer[currentOffset] == '0' && (buffer[currentOffset + 1] == 'x' || buffer[currentOffset + 1] == 'X')) {
                     currentOffset += 2 // Hex
-                    while (currentOffset < endOffset && (buffer[currentOffset].isDigit() || buffer[currentOffset].toLowerCase() in 'a'..'f')) {
+                    while (currentOffset < endOffset && (buffer[currentOffset].isDigit() || buffer[currentOffset].lowercaseChar() in 'a'..'f')) {
                         currentOffset++
                     }
                 } else {
