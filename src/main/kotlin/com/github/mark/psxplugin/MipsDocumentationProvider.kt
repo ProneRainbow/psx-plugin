@@ -8,7 +8,9 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
         if (target is LeafPsiElement && target.elementType == MipsTokenTypes.REGISTER) {
-            val regName = target.text.removePrefix("$").lowercase()
+            val rawRegName = target.text.removePrefix("$").lowercase()
+            // Map numeric registers to named ones
+            val regName = numericToNamed[rawRegName] ?: rawRegName
             return registerDocs[regName] ?: cop0Docs[regName] ?: gteDocs[regName]
         }
         return null
@@ -17,13 +19,21 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
     override fun getQuickNavigateInfo(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
         if (target is LeafPsiElement && target.elementType == MipsTokenTypes.REGISTER) {
-            val regName = target.text.removePrefix("$")
-            return "MIPS Register: \$$regName"
+            val rawRegName = target.text.removePrefix("$").lowercase()
+            val namedReg = numericToNamed[rawRegName]
+            val regLabel = if (namedReg != null) "\$$rawRegName (\$$namedReg)" else "\$$rawRegName"
+            return "MIPS Register: $regLabel"
         }
         return null
     }
 
     companion object {
+        private val numericToNamed = mapOf(
+            "0" to "zero", "1" to "at", "2" to "v0", "3" to "v1", "4" to "a0", "5" to "a1", "6" to "a2", "7" to "a3",
+            "8" to "t0", "9" to "t1", "10" to "t2", "11" to "t3", "12" to "t4", "13" to "t5", "14" to "t6", "15" to "t7",
+            "16" to "s0", "17" to "s1", "18" to "s2", "19" to "s3", "20" to "s4", "21" to "s5", "22" to "s6", "23" to "s7",
+            "24" to "t8", "25" to "t9", "26" to "k0", "27" to "k1", "28" to "gp", "29" to "sp", "30" to "fp", "31" to "ra"
+        )
         private val registerDocs = mapOf(
             "zero" to "<b>\$zero</b>: Always contains the value 0.",
             "at" to "<b>\$at</b>: Assembler Temporary. Reserved for use by the assembler.",
@@ -82,7 +92,8 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
             "xcontext" to "<b>XContext</b> (COP0 R20): 64-bit context register.",
             "taglo" to "<b>TagLo</b> (COP0 R28): Cache tag (low).",
             "taghi" to "<b>TagHi</b> (COP0 R29): Cache tag (high).",
-            "errorepc" to "<b>ErrorEPC</b> (COP0 R30): Error Exception Program Counter."
+            "errorepc" to "<b>ErrorEPC</b> (COP0 R30): Error Exception Program Counter.",
+            "badpaddr" to "<b>BadPAddr</b> (COP0 R31): Physical address of most recent virtual-memory error."
         )
 
         private val gteDocs = mapOf(
@@ -109,6 +120,7 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
             "rgb0" to "<b>RGB0</b> (GTE R20): Color FIFO 0 (U8).",
             "rgb1" to "<b>RGB1</b> (GTE R21): Color FIFO 1 (U8).",
             "rgb2" to "<b>RGB2</b> (GTE R22): Color FIFO 2 (U8).",
+            "res1" to "<b>RES1</b> (GTE R23): Reserved register.",
             "mac0" to "<b>MAC0</b> (GTE R24): Accumulator 0 (S32).",
             "mac1" to "<b>MAC1</b> (GTE R25): Accumulator 1 (S32).",
             "mac2" to "<b>MAC2</b> (GTE R26): Accumulator 2 (S32).",
@@ -117,6 +129,38 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
             "orgb" to "<b>ORGB</b> (GTE R29): Output Color (U5).",
             "lzcs" to "<b>LZCS</b> (GTE R30): Count Leading Zeroes/Ones Source.",
             "lzcr" to "<b>LZCR</b> (GTE R31): Count Leading Zeroes/Ones Result.",
+            // GTE Control Registers
+            "r11r12" to "<b>R11R12</b> (GTE C0): Rotation matrix (rows 1 & 2).",
+            "r13r21" to "<b>R13R21</b> (GTE C1): Rotation matrix (rows 1 & 2).",
+            "r22r23" to "<b>R22R23</b> (GTE C2): Rotation matrix (rows 2 & 3).",
+            "r31r32" to "<b>R31R32</b> (GTE C3): Rotation matrix (row 3).",
+            "r33" to "<b>R33</b> (GTE C4): Rotation matrix (row 3).",
+            "trx" to "<b>TRX</b> (GTE C5): Translation vector X (S32).",
+            "try" to "<b>TRY</b> (GTE C6): Translation vector Y (S32).",
+            "trz" to "<b>TRZ</b> (GTE C7): Translation vector Z (S32).",
+            "l11l12" to "<b>L11L12</b> (GTE C8): Light matrix (rows 1 & 2).",
+            "l13l21" to "<b>L13L21</b> (GTE C9): Light matrix (rows 1 & 2).",
+            "l22l23" to "<b>L22L23</b> (GTE C10): Light matrix (rows 2 & 3).",
+            "l31l32" to "<b>L31L32</b> (GTE C11): Light matrix (row 3).",
+            "l33" to "<b>L33</b> (GTE C12): Light matrix (row 3).",
+            "rbk" to "<b>RBK</b> (GTE C13): Background color Red (S32).",
+            "gbk" to "<b>GBK</b> (GTE C14): Background color Green (S32).",
+            "bbk" to "<b>BBK</b> (GTE C15): Background color Blue (S32).",
+            "lr1lr2" to "<b>LR1LR2</b> (GTE C16): Light source color matrix (rows 1 & 2).",
+            "lr3lg1" to "<b>LR3LG1</b> (GTE C17): Light source color matrix (rows 1 & 2).",
+            "lg2lg3" to "<b>LG2LG3</b> (GTE C18): Light source color matrix (rows 2 & 3).",
+            "lb1lb2" to "<b>LB1LB2</b> (GTE C19): Light source color matrix (row 3).",
+            "lb3" to "<b>LB3</b> (GTE C20): Light source color matrix (row 3).",
+            "rfc" to "<b>RFC</b> (GTE C21): Far color Red (S32).",
+            "gfc" to "<b>GFC</b> (GTE C22): Far color Green (S32).",
+            "bfc" to "<b>BFC</b> (GTE C23): Far color Blue (S32).",
+            "ofx" to "<b>OFX</b> (GTE C24): Screen offset X (S32).",
+            "ofy" to "<b>OFY</b> (GTE C25): Screen offset Y (S32).",
+            "h" to "<b>H</b> (GTE C26): Screen projection distance.",
+            "dqa" to "<b>DQA</b> (GTE C27): Depth cueing parameter A (S16).",
+            "dqb" to "<b>DQB</b> (GTE C28): Depth cueing parameter B (S32).",
+            "zsf3" to "<b>ZSF3</b> (GTE C29): Z-scale factor 3 (S16).",
+            "zsf4" to "<b>ZSF4</b> (GTE C30): Z-scale factor 4 (S16).",
             "flag" to "<b>FLAG</b> (GTE C31): Status flags for GTE operations."
         )
     }
