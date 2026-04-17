@@ -339,6 +339,17 @@ add_executable($projectName ${'$'}{SOURCES})
 
 # 4. Compiler definitions for PSX
 add_definitions(-D__psx__)
+
+# 5. Fix for Clangd and CLion 'u_long' and other common PSX types
+# This ensures that both Clangd and CLion's static analyzer recognize these common types.
+add_definitions("-Du_char=unsigned char")
+add_definitions("-Du_short=unsigned short")
+add_definitions("-Du_int=unsigned int")
+add_definitions("-Du_long=unsigned long")
+add_definitions("-DUSHORT=unsigned short")
+add_definitions("-DULONG=unsigned long")
+add_definitions("-DUINT=unsigned int")
+add_definitions("-DUCHAR=unsigned char")
         """.trimIndent()
     }
 }
