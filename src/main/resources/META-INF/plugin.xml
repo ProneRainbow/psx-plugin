@@ -13,6 +13,7 @@
         <lang.commenter language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsCommenter"/>
         <lang.parserDefinition language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsParserDefinition"/>
         <completion.contributor language="any" implementationClass="com.github.mark.psxplugin.PsyQCompletionContributor"/>
+        <completion.contributor language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsCompletionContributor"/>
         
         <!-- Registration for Mips -->
         <lang.documentationProvider language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsDocumentationProvider"/>

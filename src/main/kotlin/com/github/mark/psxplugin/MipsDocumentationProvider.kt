@@ -19,11 +19,20 @@ class MipsDocumentationProvider : AbstractDocumentationProvider() {
         if (text.startsWith("$")) {
             val rawRegName = text.removePrefix("$")
             val regName = numericToNamed[rawRegName] ?: rawRegName
-            return registerDocs[regName] ?: cop0Docs[regName] ?: gteDocs[regName]
+            val doc = registerDocs[regName] ?: cop0Docs[regName] ?: gteDocs[regName]
+            if (doc != null) {
+                val link = "https://problemkaputt.de/psx-spx.htm"
+                return "$doc<br><br><a href=\"$link\">Online Reference (PSX-SPX)</a>"
+            }
         }
         
         // Handle Instructions
-        return instructionDocs[text]
+        val doc = instructionDocs[text]
+        if (doc != null) {
+            val link = "https://problemkaputt.de/psx-spx.htm#cpuinstructionset"
+            return "$doc<br><br><a href=\"$link\">Online Reference (PSX-SPX)</a>"
+        }
+        return null
     }
 
     override fun getCustomDocumentationElement(editor: com.intellij.openapi.editor.Editor, file: PsiFile, contextElement: PsiElement?): PsiElement? {
