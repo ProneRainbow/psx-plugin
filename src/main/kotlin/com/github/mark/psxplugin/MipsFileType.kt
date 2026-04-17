@@ -8,5 +8,5 @@ object MipsFileType : LanguageFileType(MipsLanguage) {
     override fun getName(): String = "MIPS Assembly"
     override fun getDescription(): String = "MIPS Assembly language file"
     override fun getDefaultExtension(): String = "asm"
-    override fun getIcon(): Icon? = null
+    override fun getIcon(): Icon? = PsxIcons.PsxLogo
 }

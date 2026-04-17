@@ -10,6 +10,7 @@ This plugin adds comprehensive support for **PlayStation 1 (PSX)** development t
 *   **GTE & COP0 Support:** Specialized highlighting for Geometry Transformation Engine (COP2) and System Control (COP0) opcodes.
 *   **Documentation Hovers:** Hover over any MIPS register (including GTE/COP0) to see its purpose and PSX-specific usage.
 *   **Live Templates:** Type `func` or `main` to quickly scaffold assembly routines.
+*   **Numeric Conversions:** Hover over any number (Hex, Dec, Bin) to see its value in other bases automatically.
 
 ### 🍱 PsyQ C/C++ Support
 *   **Full SDK Completion:** Auto-completion for hundreds of functions from `libgpu`, `libgs`, `libcd`, `libspu`, `libetc`, `libmath`, `libmcrd`, `libpress`, and more.
@@ -20,6 +21,34 @@ This plugin adds comprehensive support for **PlayStation 1 (PSX)** development t
     *   `psxinit`: Generates basic graphics initialization code.
     *   `psxloop`: Creates a standard VSync-based main loop.
     *   `psxregs`: Inserts hardware register `#define` pointers.
+
+### 🏗 Project Templates
+*   **PSX Project:** A new project template in the "New Project" menu that scaffolds a `Makefile`, `main.c`, and a `bin2exe.py` conversion script.
+
+---
+
+## 🛠 Prerequisites (For Generated Projects)
+If you are using the **PSX Project** template, ensure you have the following installed and added to your system's **PATH** environment variable:
+*   **Python:** Required for the `bin2exe.py` post-build script.
+*   **armips:** A versatile MIPS assembler (often used for PSX development).
+
+## 🚀 Build Instructions (For Generated Projects)
+Once you've created a new project from the **PSX Project** template:
+
+### 1. Building the `.bin` and `.ps-exe`
+Open your terminal in the project root and run:
+```bash
+make
+```
+This will:
+1.  Use `armips` to assemble your `.asm` files into a `.bin` file.
+2.  Use `python` and `bin2exe.py` to convert that `.bin` into a bootable PlayStation `.ps-exe` file.
+
+### 2. Cleaning up
+To remove the built binaries and start fresh:
+```bash
+make clean
+```
 
 ---
 
@@ -42,12 +71,21 @@ If you want to test the plugin immediately without installing it:
 
 ### 3. Create a Plugin Zip (For Installation)
 If you want to generate a `.zip` file to install into your primary CLion:
+
+#### **A. Using the Terminal (Recommended)**
+Since this project requires **Java 21**, run the following command in your terminal to ensure the correct version is used for the build:
+```powershell
+$env:JAVA_HOME="C:\Program Files\Java\jdk-21.0.10"; ./gradlew buildPlugin
+```
+
+#### **B. Using the Gradle Window in CLion**
 1.  Open the **Gradle tool window** on the right.
 2.  Navigate to: `psx-plugin` -> `Tasks` -> `intellij platform` -> `buildPlugin`.
 3.  **Double-click `buildPlugin`**.
-4.  Once the task finishes, navigate to the following folder in your file explorer:
-    `C:\dev\psx-plugin\build\distributions\`
-5.  You will find a file named `psx-plugin-1.0-SNAPSHOT.zip`.
+
+#### **Output Location**
+Once the task finishes, you will find the installation package here:
+`C:\dev\psx-plugin\build\distributions\psx-plugin-1.0-SNAPSHOT.zip`
 
 ### 4. Install the Plugin in CLion
 1.  Open your main **CLion 2026.1** instance.

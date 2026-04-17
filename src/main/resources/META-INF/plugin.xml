@@ -24,5 +24,6 @@
         <liveTemplateContext contextId="MIPS" implementation="com.github.mark.psxplugin.MipsLiveTemplateContext"/>
         <defaultLiveTemplates file="liveTemplates/PsyQ.xml"/>
         <defaultLiveTemplates file="liveTemplates/MIPS.xml"/>
+        <directoryProjectGenerator implementation="com.github.mark.psxplugin.PsxProjectGenerator"/>
     </extensions>
 </idea-plugin>
