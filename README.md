@@ -23,14 +23,33 @@ This plugin adds comprehensive support for **PlayStation 1 (PSX)** development t
     *   `psxregs`: Inserts hardware register `#define` pointers.
 
 ### 🏗 Project Templates
-*   **PSX Project:** A new project template in the "New Project" menu that scaffolds a `Makefile`, `main.c`, and a `bin2exe.py` conversion script.
+*   **PSX Project:** A new project template in the "New Project" menu that scaffolds a `Makefile`, `main.c`, `bin2exe.py`, and an automated SDK setup script.
 
 ---
 
 ## 🛠 Prerequisites (For Generated Projects)
-If you are using the **PSX Project** template, ensure you have the following installed and added to your system's **PATH** environment variable:
+If you are using the **PSX Project** template, ensure you have the following installed:
 *   **Python:** Required for the `bin2exe.py` post-build script.
 *   **armips:** A versatile MIPS assembler (often used for PSX development).
+*   **PsyQ SDK:** The official Sony SDK. If you don't have it, you can use the included `setup_psyq.ps1` script (see below).
+
+## 📦 Setting up the PsyQ SDK
+Each new project includes a `setup_psyq.ps1` PowerShell script to automate the installation of the official PsyQ SDK.
+
+### Using the Setup Script:
+1.  Open **PowerShell** as Administrator (required to modify Environment Variables).
+2.  Navigate to your project root.
+3.  Run the script:
+    ```powershell
+    .\setup_psyq.ps1
+    ```
+This script will:
+*   Download the **PsyQ SDK (140MB)** to `C:\psyq`.
+*   Unzip the SDK automatically.
+*   Add `C:\psyq\bin` to your **User PATH** so you can run tools like `psylib` from anywhere.
+*   Set the `PSYQ_SDK` environment variable.
+
+*Note: You may need to restart CLion after running this script for the new PATH to be recognized.*
 
 ## 🚀 Build Instructions (For Generated Projects)
 Once you've created a new project from the **PSX Project** template:
