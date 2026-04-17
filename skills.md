@@ -34,3 +34,9 @@ This document outlines the specialized skills utilized and available for the **P
 - **psx-spx:** [Hardware Specifications](https://psx-spx.consoledev.net/)
 - **nolibgs:** [Modern PSX Toolchain](https://schnappy.xyz/nolibgs/)
 - **PsyQ SDK Reference:** Sony's original developer manuals and libraries.
+- **XEBRA Research:** [Technical Research on PS1 Hardware](https://drhell.web.fc2.com/ps1/)
+- **Padua PSX Resource:** [Archive of Low-level Assembly Docs & Sources](http://web.archive.org/web/20170614051729/http://psx.padua.org/psxrul2.shtml)
+- **PCSX-Redux:** [Modern PSX Emulator with Advanced Debugging](https://github.com/grumpycoders/pcsx-redux#pcsx-redux)
+- **Nugget:** [Modern Open-Source PSX Devkit](https://github.com/pcsx-redux/nugget/)
+- **PSYQo:** [Modern C++ Object-Oriented Library for PS1](https://github.com/pcsx-redux/nugget/tree/main/psyqo)
+- **nolibgs Examples:** [Hello World Examples and Toolchain Setup](https://github.com/ABelliqueux/nolibgs_hello_worlds)
