@@ -5,9 +5,35 @@ import com.intellij.psi.PsiElement
 import com.intellij.openapi.diagnostic.Logger
 
 class PsyQDocumentationProvider : AbstractDocumentationProvider() {
+    private val LOG = Logger.getInstance(PsyQDocumentationProvider::class.java)
+
+    init {
+        LOG.info("[DEBUG_LOG] PsyQDocumentationProvider INSTANTIATED")
+    }
+
+    override fun getCustomDocumentationElement(editor: com.intellij.openapi.editor.Editor, file: com.intellij.psi.PsiFile, contextElement: PsiElement?, targetOffset: Int): PsiElement? {
+        if (contextElement == null) return null
+        val text = contextElement.text
+        LOG.info("[DEBUG_LOG] PsyQ getCustomDocElement for: '$text', lang: ${contextElement.language}")
+        
+        // If it's a number or a likely PsyQ identifier, we want to handle it
+        if (tryConvertNumber(text) != null || 
+            functionDocs.containsKey(text) || 
+            registerDocs.containsKey(text) || 
+            constantDocs.containsKey(text) || 
+            structDocs.containsKey(text) || 
+            macroDocs.containsKey(text) ||
+            mipsRegisterDocs.containsKey(text.removePrefix("$").lowercase())) {
+            return contextElement
+        }
+        return null
+    }
+
     override fun generateDoc(element: PsiElement?, originalElement: PsiElement?): String? {
         val target = originalElement ?: element ?: return null
         val text = target.text.trim()
+        
+        LOG.info("[DEBUG_LOG] PsyQ generateDoc called for text: '$text', element: $target")
         
         // 1. Handle Numbers
         tryConvertNumber(text)?.let { return it }

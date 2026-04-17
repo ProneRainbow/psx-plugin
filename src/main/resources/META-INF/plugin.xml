@@ -21,6 +21,8 @@
         
         <!-- Cross-registration for C/C++ -->
         <lang.documentationProvider language="ObjectiveC" implementationClass="com.github.mark.psxplugin.PsyQDocumentationProvider"/>
+        <lang.documentationProvider language="C" implementationClass="com.github.mark.psxplugin.PsyQDocumentationProvider"/>
+        <lang.documentationProvider language="C++" implementationClass="com.github.mark.psxplugin.PsyQDocumentationProvider"/>
         
         <liveTemplateContext contextId="PSYQ" implementation="com.github.mark.psxplugin.PsyQLiveTemplateContext"/>
         <liveTemplateContext contextId="MIPS" implementation="com.github.mark.psxplugin.MipsLiveTemplateContext"/>
