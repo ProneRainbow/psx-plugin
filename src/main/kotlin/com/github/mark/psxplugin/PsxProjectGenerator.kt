@@ -56,6 +56,10 @@ class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
                 val setupPs1 = baseDir.createChildData(this, "setup_psyq.ps1")
                 VfsUtil.saveText(setupPs1, createSetupPsyQContent())
 
+                // 9. Create CMakeLists.txt for IDE Indexing
+                val cmakeFile = baseDir.createChildData(this, "CMakeLists.txt")
+                VfsUtil.saveText(cmakeFile, createCMakeListsContent(project.name))
+
             } catch (e: Exception) {
                 // Log error or handle appropriately
             }
@@ -118,6 +122,11 @@ Ensure you have the following tools installed and added to your system **PATH**:
 - **Python:** Required for the `bin2exe.py` conversion script.
 - **armips:** The MIPS assembler used to build the project.
 
+### 3. IDE Configuration (CLion)
+To ensure that CLion properly recognizes the PsyQ headers and provides full IntelliSense:
+1.  **Reload CMake:** If you see "File not found" errors on your `#include` statements, right-click `CMakeLists.txt` and select **Reload CMake Project**.
+2.  **Restart CLion:** In some cases, a full restart of the IDE is required for the new include paths to be correctly indexed by the C/C++ engine.
+
 ## 🚀 Build Instructions
 
 Use the following commands in your terminal to manage the build:
@@ -136,6 +145,7 @@ Use the following commands in your terminal to manage the build:
 - `${projectName.lowercase()}.asm`: The main MIPS assembly source file.
 - `include/`: Bundled PsyQ header files for IDE IntelliSense and auto-completion.
 - `Makefile`: Automates the assembly and conversion process.
+- `CMakeLists.txt`: Configures CLion's IntelliSense to find the PsyQ headers.
 - `bin2exe.py`: Utility script to convert raw binaries to the PlayStation EXE format.
 - `setup_psyq.ps1`: Automated SDK installation script.
         """.trimIndent()
@@ -302,6 +312,33 @@ try {
 
 Write-Host "`n[SUCCESS] PsyQ SDK has been installed to ${'$'}dest" -ForegroundColor Green
 Write-Host "[NOTE] You may need to restart your terminal or IDE for PATH changes to take effect." -ForegroundColor Cyan
+        """.trimIndent()
+    }
+
+    private fun createCMakeListsContent(projectName: String): String {
+        return """
+cmake_minimum_required(VERSION 3.10)
+project($projectName C)
+
+# --- PSX MIPS & PsyQ Plugin Configuration ---
+# Note: This file is primarily used for IDE Indexing (IntelliSense).
+# Use the Makefile for the actual build process.
+
+# 1. Include bundled PsyQ headers (using absolute path for reliability)
+include_directories("${'$'}{CMAKE_CURRENT_SOURCE_DIR}/include")
+
+# 2. Include actual PsyQ SDK if available
+if(EXISTS "C:/psyq/include")
+    include_directories("C:/psyq/include")
+endif()
+
+# 3. Define the project executable
+# We include all .c files in the project root to ensure they are all indexed
+file(GLOB SOURCES "*.c")
+add_executable($projectName ${'$'}{SOURCES})
+
+# 4. Compiler definitions for PSX
+add_definitions(-D__psx__)
         """.trimIndent()
     }
 }
