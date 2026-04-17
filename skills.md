@@ -14,6 +14,7 @@ This document outlines the specialized skills utilized and available for the **P
     - **Completion Contributors:** Tailored auto-completion for SDK-specific symbols and hardware registers.
 - **Diagnostics & Tooling:**
     - Integrated multi-base numeric conversion engine (Dec/Hex/Bin).
+    - **Static Analysis:** Implementation of `Annotators` for real-time detection of MIPS pipeline hazards (Branch and Load delay slot violations).
     - Strategic use of IntelliJ logging for "radar" style debugging of plugin internals.
 
 ## 🎮 PlayStation 1 (PSX) Game Development
@@ -25,7 +26,7 @@ This document outlines the specialized skills utilized and available for the **P
     - **COP0 (System Control):** Interrupt handling, exception management, and memory-mapped I/O.
     - **GPU Communication:** Direct interaction with `GP0` (Commands/Data) and `GP1` (Status/Control) registers.
 - **SDK & Libraries:**
-    - **PsyQ SDK:** Proficiency in `libgpu`, `libgs`, `libcd`, `libspu`, and BIOS-level calls.
+    - **PsyQ SDK:** Proficiency in the full standard set of headers including `libgpu`, `libgs`, `libcd`, `libspu`, and BIOS-level calls.
     - **Modern SDKs:** Familiarity with `nolibgs` and Nugget for contemporary PSX development.
 - **Technical Documentation:**
     - Proficient in interpreting hardware specifications from resources like **psx-spx** (ConsoleDev) and official Sony documentation.

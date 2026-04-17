@@ -102,7 +102,7 @@ class PsyQCompletionContributor : CompletionContributor() {
             "FntOpen", "FntLoad", "FntPrint", "FntFlush",
 
             // --- libgs (Extended Graphics) ---
-            "GsInitGraph", "GsSetContext", "GsGetContext", "GsSwapDisplay",
+            "GsInitGraph", "GsSetContext", "GsGetContext", "GsSwapDisplay", "GsSwapDispBuff",
             "GsInitOt", "GsClearOt", "GsDrawOt", "GsSetWorkBase",
             "GsDefDispBuff", "GsGetActiveBuff", "GsSetDrawBuff",
             "GsInit3D", "GsSetProjection", "GsSetView2D", "GsSetView3D",

@@ -16,6 +16,7 @@
         
         <!-- Registration for Mips -->
         <lang.documentationProvider language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsDocumentationProvider"/>
+        <annotator language="PSX_MIPS" implementationClass="com.github.mark.psxplugin.MipsAnnotator"/>
         
         <!-- Cross-registration for C/C++ -->
         <lang.documentationProvider language="ObjectiveC" implementationClass="com.github.mark.psxplugin.PsyQDocumentationProvider"/>

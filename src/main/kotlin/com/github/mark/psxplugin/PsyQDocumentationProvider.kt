@@ -143,7 +143,8 @@ class PsyQDocumentationProvider : AbstractDocumentationProvider() {
 
         private val functionDocs = mapOf(
             "GsInitGraph" to "<b>GsInitGraph</b>: Initializes the graphics system with specified resolution and mode.",
-            "GsSwapDisplay" to "<b>GsSwapDisplay</b>: Swaps the drawing and display buffers (Double buffering).",
+            "GsSwapDisplay" to "<b>GsSwapDisplay</b>: Alias for GsSwapDispBuff. Swaps the drawing and display buffers (Double buffering).",
+            "GsSwapDispBuff" to "<b>GsSwapDispBuff</b>: Swaps the drawing and display buffers (Double buffering).",
             "GsSortObject4" to "<b>GsSortObject4</b>: Registers a 3D object for drawing in the ordering table.",
             "ResetGraph" to "<b>ResetGraph</b>: Resets the GPU and clears the VRAM.",
             "PutDrawEnv" to "<b>PutDrawEnv</b>: Sends a drawing environment structure to the GPU.",

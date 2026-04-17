@@ -8,12 +8,13 @@ import com.intellij.platform.DirectoryProjectGenerator
 import com.intellij.platform.DirectoryProjectGeneratorBase
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.vfs.VfsUtil
+import java.io.InputStream
 import javax.swing.Icon
 
 class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
     override fun getName(): String = "PSX Project"
 
-    override fun getDescription(): String = "A project template for Sony PlayStation 1 development. Includes a pre-configured Makefile, PsyQ headers for IntelliSense, and an automated SDK setup script."
+    override fun getDescription(): String = "A project template for Sony PlayStation 1 development. Includes a pre-configured Makefile, the full PsyQ SDK headers for IntelliSense, and an automated SDK setup script."
     override fun getLogo(): Icon? = PsxIcons.PsxLogo
 
     override fun generateProject(project: Project, baseDir: VirtualFile, settings: Any, module: Module) {
@@ -21,16 +22,9 @@ class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
             try {
                 // 1. Create include directory
                 val includeDir = baseDir.createChildDirectory(this, "include")
-                val sysDir = includeDir.createChildDirectory(this, "sys")
 
-                // 2. Unpack PsyQ Headers
-                val headers = PsyQHeaderData.getHeaders()
-                for ((path, content) in headers) {
-                    val targetDir = if (path.startsWith("sys/")) sysDir else includeDir
-                    val fileName = if (path.startsWith("sys/")) path.substring(4) else path
-                    val headerFile = targetDir.createChildData(this, fileName)
-                    VfsUtil.saveText(headerFile, content)
-                }
+                // 2. Unpack PsyQ Headers from resources
+                unpackHeaders(includeDir)
 
                 // 3. Create Makefile
                 val makefile = baseDir.createChildData(this, "Makefile")
@@ -62,6 +56,46 @@ class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
 
             } catch (e: Exception) {
                 // Log error or handle appropriately
+            }
+        }
+    }
+
+    private fun unpackHeaders(targetDir: VirtualFile) {
+        val resourcePath = "/psyq_include"
+        val headers = listOf(
+            "ABS.H", "ASM.H", "ASSERT.H", "CONVERT.H", "CTYPE.H", "FS.H", "GTEMAC.H", "GTENOM.H",
+            "GTEREG.H", "GTEREG_S.H", "INLINE_A.H", "INLINE_C.H", "INLINE_O.H", "INLINE_S.H",
+            "KERNEL.H", "LIBAPI.H", "LIBCD.H", "LIBCOMB.H", "LIBDS.H", "LIBETC.H", "LIBGPU.H",
+            "LIBGS.H", "LIBGTE.H", "LIBGUN.H", "LIBHMD.H", "LIBMATH.H", "LIBMCRD.H", "LIBMCX.H",
+            "LIBPAD.H", "LIBPRESS.H", "LIBSIO.H", "LIBSN.H", "LIBSND.H", "LIBSPU.H", "LIBTAP.H",
+            "LIMITS.H", "MALLOC.H", "MCGUI.H", "MEMORY.H", "QSORT.H", "R3000.H", "RAND.H",
+            "ROMIO.H", "SETJMP.H", "STDARG.H", "STDDEF.H", "STDIO.H", "STDLIB.H", "STRING.H",
+            "STRINGS.H",
+            "SYS/ERRNO.H", "SYS/FCNTL.H", "SYS/FILE.H", "SYS/IOCTL.H", "SYS/TYPES.H"
+        )
+
+        for (header in headers) {
+            val inputStream = javaClass.getResourceAsStream("$resourcePath/$header")
+            if (inputStream != null) {
+                try {
+                    val content = inputStream.bufferedReader().readText()
+                    
+                    var currentTarget = targetDir
+                    val parts = header.split("/")
+                    if (parts.size > 1) {
+                        for (i in 0 until parts.size - 1) {
+                            val subDirName = parts[i].lowercase()
+                            val existing = currentTarget.findChild(subDirName)
+                            currentTarget = existing ?: currentTarget.createChildDirectory(this, subDirName)
+                        }
+                    }
+                    
+                    val fileName = parts.last()
+                    val file = currentTarget.createChildData(this, fileName)
+                    VfsUtil.saveText(file, content)
+                } finally {
+                    inputStream.close()
+                }
             }
         }
     }

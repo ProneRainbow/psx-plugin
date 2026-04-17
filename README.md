@@ -13,7 +13,7 @@ This plugin adds comprehensive support for **PlayStation 1 (PSX)** development t
 *   **Numeric Conversions:** Hover over any number (Hex, Dec, Bin) to see its value in other bases automatically.
 
 ### 🍱 PsyQ C/C++ Support
-*   **Full SDK Completion:** Auto-completion for hundreds of functions from `libgpu`, `libgs`, `libcd`, `libspu`, `libetc`, `libmath`, `libmcrd`, `libpress`, and more.
+*   **Full SDK Completion:** IntelliSense and auto-completion for the **complete PsyQ SDK** headers. Includes inline documentation for functions in `libgpu`, `libgs`, `libcd`, `libspu`, `libetc`, and more.
 *   **Hardware Registers:** Direct completion and documentation for memory-mapped I/O addresses (e.g., `GP0`, `I_STAT`).
 *   **BIOS Symbols:** Support for low-level BIOS A0, B0, and C0 table functions.
 *   **SDK Constants & Structs:** Auto-completion for PSX-specific types like `RECT`, `SVECTOR`, and constants like `GsNONINTER`.
@@ -23,7 +23,7 @@ This plugin adds comprehensive support for **PlayStation 1 (PSX)** development t
     *   `psxregs`: Inserts hardware register `#define` pointers.
 
 ### 🏗 Project Templates
-*   **PSX Project:** A new project template in the "New Project" menu that scaffolds a `Makefile`, `main.c`, `bin2exe.py`, and an automated SDK setup script.
+*   **PSX Project:** A new project template in the "New Project" menu that scaffolds a `Makefile`, `main.c`, `bin2exe.py`, the full set of PsyQ headers, and an automated SDK setup script.
 
 ---
 
