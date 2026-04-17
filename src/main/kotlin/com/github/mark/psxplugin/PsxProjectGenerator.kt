@@ -13,7 +13,7 @@ import javax.swing.Icon
 class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
     override fun getName(): String = "PSX Project"
 
-    override fun getDescription(): String = "Create a new PlayStation 1 project with a Makefile and main.c."
+    override fun getDescription(): String = "A project template for Sony PlayStation 1 development. Includes a pre-configured Makefile, PsyQ headers for IntelliSense, and an automated SDK setup script."
     override fun getLogo(): Icon? = PsxIcons.PsxLogo
 
     override fun generateProject(project: Project, baseDir: VirtualFile, settings: Any, module: Module) {
