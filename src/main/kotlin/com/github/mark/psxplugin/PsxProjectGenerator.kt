@@ -44,7 +44,7 @@ class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
 
                 // 7. Create the main asm file
                 val asmFile = baseDir.createChildData(this, "${project.name.lowercase()}.asm")
-                VfsUtil.saveText(asmFile, "; ${project.name} Main Assembly File\n")
+                VfsUtil.saveText(asmFile, createAsmContent(project.name))
 
                 // 8. Create setup_psyq.ps1
                 val setupPs1 = baseDir.createChildData(this, "setup_psyq.ps1")
@@ -54,10 +54,21 @@ class PsxProjectGenerator : DirectoryProjectGeneratorBase<Any>() {
                 val cmakeFile = baseDir.createChildData(this, "CMakeLists.txt")
                 VfsUtil.saveText(cmakeFile, createCMakeListsContent(project.name))
 
+                // 10. Create .gitignore
+                val gitignore = baseDir.createChildData(this, ".gitignore")
+                VfsUtil.saveText(gitignore, createGitignoreContent())
+
             } catch (e: Exception) {
                 // Log error or handle appropriately
             }
         }
+    }
+
+    private fun createGitignoreContent(): String {
+        return """
+            # PSX Build Artifacts
+            build/
+        """.trimIndent()
     }
 
     private fun unpackHeaders(targetDir: VirtualFile) {
@@ -109,21 +120,25 @@ ASM = armips
 PYTHON = python
 BIN2EXE = bin2exe.py
 INCLUDE_PATH = include
+BUILD_DIR = build
 
-TARGET_BIN = $name.bin
-TARGET_EXE = $name.ps-exe
+TARGET_BIN = $(BUILD_DIR)/$name.bin
+TARGET_EXE = $(BUILD_DIR)/$name.ps-exe
 SRC = $name.asm
 
-all: $(TARGET_EXE)
+all: $(BUILD_DIR) $(TARGET_EXE)
+
+$(BUILD_DIR):
+	@if not exist "$(BUILD_DIR)" mkdir "$(BUILD_DIR)"
 
 $(TARGET_EXE): $(TARGET_BIN)
 	$(PYTHON) $(BIN2EXE) $(TARGET_BIN) $(TARGET_EXE)
 
 $(TARGET_BIN): $(SRC)
-	$(ASM) $(SRC)
+	$(ASM) $(SRC) -definelabel IS_BUILD_DIR 1
 
 clean:
-	rm -f $(TARGET_BIN) $(TARGET_EXE)
+	@if exist "$(BUILD_DIR)" rd /s /q "$(BUILD_DIR)"
         """.trimIndent()
     }
 
@@ -165,11 +180,11 @@ To ensure that CLion properly recognizes the PsyQ headers and provides full Inte
 
 Use the following commands in your terminal to manage the build:
 
-- **Build Project:** Compiles the assembly into a `.bin` file and then converts it to a PlayStation `.ps-exe`.
+- **Build Project:** Compiles the assembly into a `.bin` file in the `build/` directory and then converts it to a PlayStation `.ps-exe`.
   ```bash
   make
   ```
-- **Clean Build:** Removes the generated `.bin` and `.ps-exe` files.
+- **Clean Build:** Removes the `build/` directory and all its contents.
   ```bash
   make clean
   ```
@@ -178,10 +193,12 @@ Use the following commands in your terminal to manage the build:
 - `main.c`: Sample C code demonstrating PsyQ initialization.
 - `${projectName.lowercase()}.asm`: The main MIPS assembly source file.
 - `include/`: Bundled PsyQ header files for IDE IntelliSense and auto-completion.
-- `Makefile`: Automates the assembly and conversion process.
+- `build/`: Contains generated build artifacts (`.bin`, `.ps-exe`).
+- `Makefile`: Automates the assembly and conversion process, outputting to `build/`.
 - `CMakeLists.txt`: Configures CLion's IntelliSense to find the PsyQ headers.
 - `bin2exe.py`: Utility script to convert raw binaries to the PlayStation EXE format.
 - `setup_psyq.ps1`: Automated SDK installation script.
+- `.gitignore`: Configured to ignore the `build/` directory.
         """.trimIndent()
     }
 
@@ -281,6 +298,20 @@ def main(argv):
 if __name__ == '__main__':
     main(sys.argv[1:])
     sys.exit(0)
+        """.trimIndent()
+    }
+
+    private fun createAsmContent(projectName: String): String {
+        val name = projectName.lowercase()
+        return """
+            .psx
+            .if defined(IS_BUILD_DIR)
+                .create "build/$name.bin", 0x80010000
+            .else
+                .create "$name.bin", 0x80010000
+            .endif
+
+            .org 0x80010000
         """.trimIndent()
     }
 

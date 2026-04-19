@@ -30,4 +30,11 @@
         <defaultLiveTemplates file="liveTemplates/MIPS.xml"/>
         <directoryProjectGenerator implementation="com.github.mark.psxplugin.PsxProjectGenerator"/>
     </extensions>
+
+    <actions>
+        <action id="com.github.mark.psxplugin.CreateMipsAsmAction"
+                class="com.github.mark.psxplugin.CreateMipsAsmAction">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+        </action>
+    </actions>
 </idea-plugin>
