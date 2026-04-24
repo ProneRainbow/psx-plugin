@@ -39,6 +39,13 @@ class CreateMipsAsmAction : CreateFileFromTemplateAction(
             .endif
 
             .org 0x80010000
+
+            main:
+                li t0, 0x1234
+
+            loop:
+                j loop
+                nop
         """.trimIndent()
 
         val factory = PsiFileFactory.getInstance(project)

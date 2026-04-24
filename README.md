@@ -9,18 +9,34 @@ This plugin adds comprehensive support for **PlayStation 1 (PSX)** development t
 *   **Syntax Highlighting:** Full color support for instructions, registers, and directives.
 *   **GTE & COP0 Support:** Specialized highlighting for Geometry Transformation Engine (COP2) and System Control (COP0) opcodes.
 *   **Documentation Hovers:** Hover over any MIPS register (including GTE/COP0) to see its purpose and PSX-specific usage.
-*   **Live Templates:** Type `func` or `main` to quickly scaffold assembly routines.
+*   **Live Templates:** Type `func`, `main`, or `;--` to quickly scaffold assembly routines and comment blocks. (See [Live Templates](#-live-templates) below).
 *   **Numeric Conversions:** Hover over any number (Hex, Dec, Bin) to see its value in other bases automatically.
+
+#### ⌨️ MIPS Live Templates
+Type the abbreviation and press **Tab** to expand:
+*   **`func`**: Generates a standard MIPS function prologue and epilogue.
+*   **`main`**: Creates a basic `.text` and `main:` entry point.
+*   **`;--`**: Creates a formatted comment block:
+    ```mips
+    ; ---------------------------------------------------------------------------
+    ; [Cursor]
+    ; ---------------------------------------------------------------------------
+    ```
 
 ### 🍱 PsyQ C/C++ Support
 *   **Full SDK Completion:** IntelliSense and auto-completion for the **complete PsyQ SDK** headers. Includes inline documentation for functions in `libgpu`, `libgs`, `libcd`, `libspu`, `libetc`, and more.
 *   **Hardware Registers:** Direct completion and documentation for memory-mapped I/O addresses (e.g., `GP0`, `I_STAT`).
 *   **BIOS Symbols:** Support for low-level BIOS A0, B0, and C0 table functions.
 *   **SDK Constants & Structs:** Auto-completion for PSX-specific types like `RECT`, `SVECTOR`, and constants like `GsNONINTER`.
-*   **Live Templates:**
-    *   `psxinit`: Generates basic graphics initialization code.
-    *   `psxloop`: Creates a standard VSync-based main loop.
-    *   `psxregs`: Inserts hardware register `#define` pointers.
+*   **Live Templates:** Use shortcuts to quickly generate graphics boilerplate. (See [Live Templates](#-live-templates-1) below).
+
+#### ⌨️ PsyQ Live Templates
+Type the abbreviation and press **Tab** to expand:
+*   **`psxinit`**: Generates basic graphics initialization code (`GsInitGraph`, `SetDefDrawEnv`, etc.).
+*   **`psxloop`**: Creates a standard VSync-based `while(1)` main loop.
+*   **`psxregs`**: Inserts common hardware register `#define` pointers (GP0, GP1, etc.).
+*   **`rect`**: Quickly scaffold a `RECT` structure initialization.
+*   **`svector`**: Quickly scaffold an `SVECTOR` structure initialization.
 
 ### 🏗 Project Templates
 *   **PSX Project:** A new project template in the "New Project" menu that scaffolds a `Makefile`, `main.c`, `bin2exe.py`, the full set of PsyQ headers, and an automated SDK setup script.

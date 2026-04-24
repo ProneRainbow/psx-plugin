@@ -11,4 +11,10 @@
             <option name="MIPS" value="true" />
         </context>
     </template>
+
+    <template name=";--" value="; ---------------------------------------------------------------------------&#10;; $END$&#10;; ---------------------------------------------------------------------------" description="MIPS comment block" toReformat="false" toShortenFQNames="true">
+        <context>
+            <option name="MIPS" value="true" />
+        </context>
+    </template>
 </templateSet>
